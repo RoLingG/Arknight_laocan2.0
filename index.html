@@ -23,15 +23,19 @@
             max-width: 100%;
             height: auto;
         }
+        .agent-item img, .agent-item-mobile img {
+            max-width: 120px;
+            max-height: 120px;
+        }
         .agent-row {
             display: flex;
             justify-content: center;
-            margin: 0 auto; /* 水平居中 */
+            margin: 0 auto;
         }
         .agent-item, .agent-item-mobile {
-            width: 180px; /* 干员框的宽度 */
-            height: 200px; /* 干员框的高度 */
-            margin: 10px; /* 干员框的外边距 */
+            width: 180px;
+            height: 200px;
+            margin: 10px;
             border: 2px solid deeppink;
             border-radius: 5px;
             display: flex;
@@ -39,9 +43,6 @@
             align-items: center;
             justify-content: center;
             background: #ffffff;
-        }
-        .agent-item img {
-            max-width: 120px;
         }
         .background {
             top: 0;
@@ -120,26 +121,15 @@
                 const resultDiv = document.getElementById('result');
                 resultDiv.innerHTML = ''; // 清空之前的结果
 
-                // 检测是否为手机用户
                 const isMobile = window.innerWidth < 768;
-                const agentsPerRow = isMobile ? 3 : 6;
+                const isTablet = window.innerWidth >= 768 && window.innerWidth < 1024;
+                const agentsPerRow = isMobile ? 2 : (isTablet ? 4 : 6);
 
-                if (isMobile) {
-                    // 手机用户布局：4行3列
-                    for (let i = 0; i < data.agents.length; i += agentsPerRow) {
-                        const rowHtml = data.agents.slice(i, i + agentsPerRow).map(agent => {
-                            return `<div class="agent-item-mobile"><h2 class="span" style="margin-top: 5px;">${agent.agentName}</h2><img src="${agent.agentImage}" alt="${agent.agentName}"></div>`;
-                        }).join('');
-                        resultDiv.innerHTML += `<div class="agent-row">${rowHtml}</div>`;
-                    }
-                } else {
-                    // 非手机用户布局：每行6个
-                    for (let i = 0; i < data.agents.length; i += agentsPerRow) {
-                        const rowHtml = data.agents.slice(i, i + agentsPerRow).map(agent => {
-                            return `<div class="agent-item"><h2 class="span" style="margin-top: 5px;">${agent.agentName}</h2><img src="${agent.agentImage}" alt="${agent.agentName}"></div>`;
-                        }).join('');
-                        resultDiv.innerHTML += `<div class="agent-row">${rowHtml}</div>`;
-                    }
+                for (let i = 0; i < data.agents.length; i += agentsPerRow) {
+                    const rowHtml = data.agents.slice(i, i + agentsPerRow).map(agent => {
+                        return `<div class="agent-item-mobile mdui-hoverable"><h2 class="span" style="margin-top: 5px;">${agent.agentName}</h2><img src="${agent.agentImage}" alt="${agent.agentName}"></div>`;
+                    }).join('');
+                    resultDiv.innerHTML += `<div class="agent-row">${rowHtml}</div>`;
                 }
             })
             .catch(error => console.error('Error:', error));
