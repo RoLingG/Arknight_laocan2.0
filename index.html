@@ -1,0 +1,230 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>随机挑选干员</title>
+    <link rel="stylesheet" href="./assests/mdui/css/mdui.min.css">
+    <script src="./assests/mdui/js/mdui.min.js"></script>
+    <link rel="icon" type="image/x-icon" href="./assests/favicon.ico">
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            text-align: center;
+        }
+        #ad{
+            width: 80px;
+            height: 80px;
+            position: fixed;
+            top: 0;
+            left: 0;
+        }
+        img {
+            max-width: 100%;
+            height: auto;
+        }
+        .agent-row {
+            display: flex;
+            justify-content: center;
+            margin: 0 auto; /* 水平居中 */
+        }
+        .agent-item, .agent-item-mobile {
+            width: 180px; /* 干员框的宽度 */
+            height: 200px; /* 干员框的高度 */
+            margin: 10px; /* 干员框的外边距 */
+            border: 2px solid deeppink;
+            border-radius: 5px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            background: #ffffff;
+        }
+        .agent-item img {
+            max-width: 120px;
+        }
+        .background {
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            position: fixed;
+            transition: all 0.3s;
+            background-size: cover;
+            background-repeat: no-repeat;
+            background-attachment: fixed;
+            background-position: 50% 50%;
+            z-index: -1;
+            -webkit-transform: translateZ(0);
+            -moz-transform: translateZ(0);
+            -o-transform: translateZ(0);
+            transform: translateZ(0);
+            filter: blur(2px);
+            background-image: url("./assests/furnacesidefables.jpg");
+        }
+        .span {
+            background-image: -webkit-linear-gradient(left, #ff05d4, #E6D205 25%, #ff05d4 50%, #E6D205 75%, #ff05d4);
+            -webkit-text-fill-color: transparent;
+            -webkit-background-clip: text;
+            -webkit-background-size: 200% 100%;
+            -webkit-animation: masked-animation 1s infinite linear;
+        }
+        @-webkit-keyframes masked-animation {
+            0% {
+                background-position: 0 0;
+            }
+            100% {
+                background-position: -100% 0;
+            }
+        }
+    </style>
+</head>
+<body class="mdui-typo mdui-theme-accent-pink mdui-col-xs-12" style="height: 100vh;  weight:100vh; padding: 0">
+<label style="position: fixed; top: 10px; left: 20px;" class="mdui-switch">
+    <input id="toggleAdButton" type="checkbox"/>
+    <i class="mdui-switch-icon"></i>
+</label>
+<select class="mdui-select" mdui-select="{position: 'bottom'}" style="position: fixed; top: 10px; left: 80px; color: white; font-weight: bold">
+    <option value="1">干员数: 1</option>
+    <option value="2">干员数: 2</option>
+    <option value="3">干员数: 3</option>
+    <option value="4">干员数: 4</option>
+    <option value="5">干员数: 5</option>
+    <option value="6">干员数: 6</option>
+    <option value="7">干员数: 7</option>
+    <option value="8">干员数: 8</option>
+    <option value="9">干员数: 9</option>
+    <option value="10">干员数: 10</option>
+    <option value="11">干员数: 11</option>
+    <option value="12">干员数: 12</option>
+</select>
+<div class="background"><div class="index-filter"></div></div>
+<div id="ad">
+    <img src="./assests/laocan.png" width="80" height="80">
+</div>
+<h1 class="span" style="font-weight: 900; font-size: 70px; color: deeppink; text-shadow: 2px 2px 1px white; margin-top: 50px; margin-bottom: 10px">老缠杯 超绝2.0</h1>
+<h2 style="font-weight: 900; font-size: 30px; color: deeppink; text-shadow: 2px 2px 1px white; margin-top: 10px">随机挑选绝赞干员</h2>
+<button class="mdui-btn mdui-btn-raised mdui-ripple mdui-color-theme-accent" id="randomButton" style="margin-top: 5px; margin-bottom: 15px">Start</button>
+<div id="result"></div>
+
+<script>
+    document.getElementById('randomButton').addEventListener('click', function() {
+        fetch('/random')
+        // 获取用户选择的数量
+        var count = document.querySelector('.mdui-select').value;
+
+        // 发送请求到后端，包含用户选择的数量
+        fetch('/random?count=' + count)
+            .then(response => response.json())
+            .then(data => {
+                const resultDiv = document.getElementById('result');
+                resultDiv.innerHTML = ''; // 清空之前的结果
+
+                // 检测是否为手机用户
+                const isMobile = window.innerWidth < 768;
+                const agentsPerRow = isMobile ? 3 : 6;
+
+                if (isMobile) {
+                    // 手机用户布局：4行3列
+                    for (let i = 0; i < data.agents.length; i += agentsPerRow) {
+                        const rowHtml = data.agents.slice(i, i + agentsPerRow).map(agent => {
+                            return `<div class="agent-item-mobile"><h2 class="span" style="margin-top: 5px;">${agent.agentName}</h2><img src="${agent.agentImage}" alt="${agent.agentName}"></div>`;
+                        }).join('');
+                        resultDiv.innerHTML += `<div class="agent-row">${rowHtml}</div>`;
+                    }
+                } else {
+                    // 非手机用户布局：每行6个
+                    for (let i = 0; i < data.agents.length; i += agentsPerRow) {
+                        const rowHtml = data.agents.slice(i, i + agentsPerRow).map(agent => {
+                            return `<div class="agent-item"><h2 class="span" style="margin-top: 5px;">${agent.agentName}</h2><img src="${agent.agentImage}" alt="${agent.agentName}"></div>`;
+                        }).join('');
+                        resultDiv.innerHTML += `<div class="agent-row">${rowHtml}</div>`;
+                    }
+                }
+            })
+            .catch(error => console.error('Error:', error));
+    });
+</script>
+<script>
+    //ad全屏飘动广告，广告位友情招租！！！你就是老缠广告商！！！
+    var ad; // 广告层
+    var closeIcon; // 关闭图标
+    var myStyle; // 广告层的样式对象
+    var intID; // 定时调用标识
+    var adWidth;
+    var adHeight;
+    var adTop;
+    var adLeft;
+    var stepTop = 2;
+    var stepLeft = 2;
+    window.onload = function()
+    {
+        // 查找节点
+        ad = document.getElementById("ad");
+        closeIcon = document.getElementById("closeIcon");
+        // 取出样式对象
+        myStyle = ad.currentStyle ? ad.currentStyle : document.defaultView.getComputedStyle(ad, null);
+        // 获取广告层宽高和定位
+        adWidth = parseInt(myStyle.width);
+        adHeight = parseInt(myStyle.height);
+        adTop = parseInt(myStyle.top);
+        adLeft = parseInt(myStyle.left);
+
+        // 启动定时调用,每30毫秒调用一次move()
+        var intID = window.setInterval("move()",30);
+        // 广告层的鼠标悬停效果
+        ad.onmouseover = function(){
+            // 停止定时调用
+            window.clearInterval(intID);
+        }
+        ad.onmouseout = function(){
+            // 重新启动定时调用
+            intID = window.setInterval("move()",30);
+        }
+        closeIcon.onclick = function(){
+            // 停止定时器调用
+            window.clearInterval(intID);
+            // 隐藏广告层
+            ad.style.display = "none";
+        }
+    }
+
+    // 改变广告层的定位
+    function move(){
+        adTop += stepTop;
+        adLeft += stepLeft;
+
+        // 重新设置广告层的定位，注意加单位
+        ad.style.top = adTop + "px";
+        ad.style.left = adLeft + "px";
+
+        // 广告层右边框到达网页最右侧或最左侧
+        if(adLeft > document.body.clientWidth - adWidth || adLeft <= 0)
+            stepLeft = -1 * stepLeft;
+        // 广告层底边框到达网页最底部或最顶部
+        if(adTop > document.body.clientHeight - adHeight || adTop <= 0)
+            stepTop = -1 * stepTop; // 取反，正变负或负变正
+
+    }
+</script>
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        var toggleAdButton = document.getElementById('toggleAdButton');
+        var ad = document.getElementById('ad');
+
+        toggleAdButton.addEventListener('click', function() {
+            // 切换广告的显示状态
+            if (ad.style.display === 'none') {
+                ad.style.display = 'block';
+                toggleAdButton.querySelector('i').classList.remove('material-icons-close');
+                toggleAdButton.querySelector('i').classList.add('material-icons-expand_less');
+            } else {
+                ad.style.display = 'none';
+                toggleAdButton.querySelector('i').classList.remove('material-icons-expand_less');
+                toggleAdButton.querySelector('i').classList.add('material-icons-close');
+            }
+        });
+    });
+</script>
+</body>
+</html>
